@@ -1,4 +1,20 @@
-import React from "react";
+import { json } from "msw/lib/types/context";
+import React, { useEffect, useState } from "react";
+
+const Recipes = () => {
+  const [recipes, setRecipes] = useState([])
+
+  useEffect(() => {
+    const fetchAllRecipes = async () => {
+      const response = await fetch('/api/recipes');
+      if (response.ok) {
+        const jsonResponse = await response.json();
+        setRecipes(jsonResponse.recipes);
+      }
+    }
+    fetchAllRecipes();
+  })
+}
 
 export const Recipes = () => {
   return (

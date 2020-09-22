@@ -19,12 +19,15 @@ const server = setupServer(
 beforeAll(() => server.listen());
 afterAll(() => server.close());
 
-test('fetches and displays all recipes', async () => {
-  render(<Recipes />)
+test("fetches and displays all recipes", async () => {
+  render(<Recipes />);
 
-  const listItems = await screen.findAllByRole('listitem');
-  expect(listItems)
-})
+  const listItems = await screen.findAllByRole("listitem");
+  expect(listItems).toHaveLength(3);
+  expect(listItems[0]).toHaveTextContent("Burger");
+  expect(listItems[1]).toHaveTextContent("French Toast");
+  expect(listItems[2]).toHaveTextContent("Salmon");
+});
 
 // test("to render the heading, input field and button", () => {
 //   render(<Recipes />);
