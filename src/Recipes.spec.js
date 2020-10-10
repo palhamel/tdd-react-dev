@@ -4,8 +4,7 @@ import { Recipes } from "./Recipes";
 import { rest } from "msw";
 import { setupServer } from "msw/node";
 
-// TESTS:
-
+// SETUP:
 const allRecipes = [
   { id: 1, title: "Burger" },
   { id: 2, title: "French Toast" },
@@ -13,7 +12,7 @@ const allRecipes = [
 ];
 
 const server = setupServer(
-  rest.get("/api/recipes", (req, res, ctx) => {
+  rest.get('/api/recipes', (req, res, ctx) => {
     if (req.url.searchParams.get('ingredient') === 'fish') {
       return res(ctx.json({ recipes: allRecipes.filter(recipe => recipe.id === 3) }));
     }
@@ -22,8 +21,33 @@ const server = setupServer(
 );
 
 beforeAll(() => server.listen());
+afterEach(() => server.resetHandlers());
 afterAll(() => server.close());
+//--------------------------------------------
 
+
+// Test Server-side errors:
+test('displays error message when fetching recipes is unsuccessful', async () => {
+  server.use(
+    rest.get('/api/recipes', (req, res, ctx) => {
+      return res(
+        ctx.status(500),
+        ctx.json({ message: 'Internal server error' }),
+      );
+    })
+  );
+  render(<Recipes />);
+
+  expect(screen.queryByRole('listitem')).not.toBeInTheDocument();
+
+  expect(await screen.findByText(
+    'Failed to fetch recipes, error message: Internal Server Error'
+  )).toBeInTheDocument();
+});
+
+
+
+// -----------------------------
 // Simulating user interaction:
 test('displays filtered recipes when searching for an ingredient', async () => {
   render(<Recipes />);
@@ -41,6 +65,7 @@ test('displays filtered recipes when searching for an ingredient', async () => {
   expect(listItems[0]).toHaveTextContent('Salmon');
 });
 
+// -----------------------------
 // Testing asynchronous code:
 test("fetches and displays all recipes", async () => {
   render(<Recipes />);
@@ -52,6 +77,7 @@ test("fetches and displays all recipes", async () => {
   expect(listItems[2]).toHaveTextContent("Salmon");
 });
 
+// -----------------------------
 // TEST :
 test("to render the heading, input field and button", () => {
   render(<Recipes />);
@@ -66,3 +92,5 @@ test("to render the heading, input field and button", () => {
   // test 3:
   expect(screen.getByRole("button")).toHaveTextContent("Find");
 });
+
+

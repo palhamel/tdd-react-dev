@@ -9,12 +9,16 @@ export const Recipes = () => {
 
   useEffect(() => {
     const fetchAllRecipes = async () => {
-      const response = await fetch("/api/recipes");
+      const response = await fetch('/api/recipes');
       if (response.ok) {
         const jsonResponse = await response.json();
         setRecipes(jsonResponse.recipes);
+      } else {
+        setErrorMessage(
+          `Failed to fetch recipes, error message: ${response.statusText}`);
       }
     };
+    
     fetchAllRecipes();
   }, []);
 
